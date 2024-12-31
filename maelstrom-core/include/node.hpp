@@ -35,6 +35,7 @@ class Node {
         
         void parseSrcAndDest(Message& message, rapidjson::Document& document) const;
         void parseMessageTypeAndId(Message& message, rapidjson::Document& document) const;
+        void parseEcho(Message &message, rapidjson::Document &document) const;
         rapidjson::Document createDocument(Message& message) const; 
         void respond(rapidjson::Document& document) const;
 

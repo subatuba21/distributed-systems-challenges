@@ -69,6 +69,28 @@ void Node::parseMessageTypeAndId(Message &message, rapidjson::Document &document
     }
 }
 
+void Node::parseEcho(Message &message, rapidjson::Document &document) const
+{
+
+    if (document.HasMember("body") && document["body"].IsObject())
+    {
+        const auto &body = document["body"].GetObject();
+
+        if (body.HasMember("echo") && body["echo"].IsString())
+        {
+            message.body.echo = body["echo"].GetString();
+        }
+        else
+        {
+            throw std::runtime_error(MESSAGE_PARSE_ERROR);
+        }
+    }
+    else
+    {
+        throw std::runtime_error(MESSAGE_PARSE_ERROR);
+    }
+}
+
 rapidjson::Document Node::createDocument(Message &message) const
 {
     rapidjson::Document document;
@@ -150,6 +172,14 @@ void Node::run()
             std::swap(message.src, message.dest);
             message.body.inReplyTo = message.body.messageId;
             message.body.type = "init_ok";
+            message.body.messageId.reset();
+            rapidjson::Document doc = createDocument(message);
+            respond(doc);
+        } else if (message.body.type == "echo") {
+            parseEcho(message, document);
+            std::swap(message.src, message.dest);
+            message.body.inReplyTo = message.body.messageId;
+            message.body.type = "echo_ok";
             message.body.messageId.reset();
             rapidjson::Document doc = createDocument(message);
             respond(doc);
