@@ -1,4 +1,6 @@
 #include <string>
+#include <rapidjson/document.h>
+#include <optional>
 
 
 enum MessageType {
@@ -8,8 +10,9 @@ enum MessageType {
 
 struct MessageBody {
     std::string type;
-    std::string messageId;
-    std::string echo;
+    std::optional<int> messageId;
+    std::optional<int> inReplyTo;
+    std::optional<std::string> echo;
 };
 
 struct Message {
@@ -32,11 +35,12 @@ class Node {
         
         void parseSrcAndDest(Message& message, rapidjson::Document& document) const;
         void parseMessageTypeAndId(Message& message, rapidjson::Document& document) const;
+        rapidjson::Document createDocument(Message& message) const; 
         void respond(rapidjson::Document& document) const;
 
         std::string id;
 
-        const enum STATE {
+        enum STATE {
             WAITING_FOR_INIT,
             TAKING_MESSAGES
         };

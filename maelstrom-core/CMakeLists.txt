@@ -7,7 +7,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include FetchContent
@@ -25,7 +25,11 @@ set(RAPIDJSON_BUILD_TESTS OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(rapidjson)
 
 # Add the executable
-add_executable(program src/main.cpp)
+add_executable(program src/main.cpp src/node.cpp)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
 
 # Include RapidJSON headers
 target_include_directories(program PRIVATE ${rapidjson_SOURCE_DIR}/include)
