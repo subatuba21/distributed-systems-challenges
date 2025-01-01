@@ -19,6 +19,7 @@ namespace maelstrom
         std::optional<int> messageId;
         std::optional<int> inReplyTo;
         std::optional<std::string> echo;
+        std::optional<std::string> id;
     };
 
     struct Message

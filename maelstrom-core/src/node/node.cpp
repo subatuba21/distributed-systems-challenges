@@ -59,6 +59,13 @@ namespace maelstrom
             body.AddMember("echo", echo, document.GetAllocator());
         }
 
+        if (message.body.id.has_value())
+        {
+            rapidjson::Value id;
+            id.SetString(message.body.id.value().c_str(), document.GetAllocator());
+            body.AddMember("id", id, document.GetAllocator());
+        }
+
         return document;
     }
 
