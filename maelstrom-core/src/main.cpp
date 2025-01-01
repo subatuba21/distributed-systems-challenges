@@ -1,18 +1,20 @@
 #include "node.hpp"
 #include "optional"
 #include "vector"
+#include "parsers.hpp"
 
+int main()
+{
 
-
-int main() {
-
+    using namespace maelstrom;
     Node node{};
 
-    Handler echoHandler = [node](rapidjson::Document& document) {
+    Handler echoHandler = [node](rapidjson::Document &document)
+    {
         Message message;
-        node.parseMessageTypeAndId(message, document);
-        node.parseSrcAndDest(message, document);
-        node.parseEcho(message, document);
+        parsers::parseMessageTypeAndId(message, document);
+        parsers::parseSrcAndDest(message, document);
+        parsers::parseEcho(message, document);
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "echo_ok";
@@ -25,4 +27,3 @@ int main() {
     node.run();
     return 0;
 }
-
