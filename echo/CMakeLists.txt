@@ -6,11 +6,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds are not allowed. Please use a separate build directory.")
 endif()
 
-set(SHARED_SOURCES src/node/node.cpp src/node/handlers.cpp src/node/parse.cpp)
-
-add_library(shared SHARED ${SHARED_SOURCES})
 # Add the executable
+add_executable(echo main.cpp)
+target_link_libraries(echo PRIVATE shared)
 
-target_include_directories(shared PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
