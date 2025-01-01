@@ -25,7 +25,7 @@ set(RAPIDJSON_BUILD_TESTS OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(rapidjson)
 
 # Add the executable
-add_executable(program src/main.cpp src/node.cpp)
+add_executable(program src/main.cpp src/node/node.cpp src/node/handlers.cpp src/node/parse.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/src)

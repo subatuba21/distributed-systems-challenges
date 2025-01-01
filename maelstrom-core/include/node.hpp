@@ -1,6 +1,9 @@
 #include <string>
 #include <rapidjson/document.h>
 #include <optional>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
 
 enum MessageType {
@@ -21,22 +24,31 @@ struct Message {
     MessageBody body;
 };
 
-using Handler = std::function<std::vector<std::unique_ptr<Message>>(std::shared_ptr<Message>&)>;
+using Handler = std::function<std::vector<Message>(rapidjson::Document& document)>;
 
 class Node {
     public:
         Node() = default;
         ~Node() = default;
         void run();
-        const std::string& get_id() const;
-        void set_id(const std::string id);
-        void initialize_handler(const Handler& handler, const std::initializer_list<const std::string&> message_types);
-    private:
-        
+
+        void initialize_handler(const Handler& handler, const std::initializer_list<std::string> message_types);
+
+        // parsers
         void parseSrcAndDest(Message& message, rapidjson::Document& document) const;
         void parseMessageTypeAndId(Message& message, rapidjson::Document& document) const;
         void parseEcho(Message &message, rapidjson::Document &document) const;
-        rapidjson::Document createDocument(Message& message) const; 
+
+        std::string getTypeFromDocument(rapidjson::Document& document) const;
+    private:
+
+        const std::string& get_id() const;
+        void set_id(const std::string id);
+
+        std::vector<Message> initHandlerFunc(rapidjson::Document& document);
+
+        // utilities
+        rapidjson::Document createDocument(const Message& message) const; 
         void respond(rapidjson::Document& document) const;
 
         std::string id;
@@ -50,5 +62,5 @@ class Node {
 
         const std::string MESSAGE_PARSE_ERROR = "INCORRECT MESSAGE BODY";
 
-
+        std::unordered_map<std::string, Handler> map;
 };
