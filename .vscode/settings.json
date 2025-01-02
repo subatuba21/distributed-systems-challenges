@@ -77,7 +77,9 @@
         "compare": "cpp",
         "concepts": "cpp",
         "algorithm": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "numeric": "cpp",
+        "random": "cpp"
     },
     "cmake.sourceDirectory": "/Users/subatuba21/Desktop/Code/Projects/distributed-systems-challenges/distributed-systems-challenges/maelstrom-core"
 }

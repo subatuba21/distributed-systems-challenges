@@ -23,6 +23,7 @@ FetchContent_MakeAvailable(rapidjson)
 add_subdirectory(maelstrom-core)
 add_subdirectory(echo)
 add_subdirectory(id-generation)
+add_subdirectory(broadcast)
 
 target_include_directories(shared PUBLIC
     ${rapidjson_SOURCE_DIR}/include
@@ -33,5 +34,9 @@ target_include_directories(echo PUBLIC
 )
 
 target_include_directories(idgeneration PUBLIC
+    ${rapidjson_SOURCE_DIR}/include
+)
+
+target_include_directories(broadcast PUBLIC
     ${rapidjson_SOURCE_DIR}/include
 )

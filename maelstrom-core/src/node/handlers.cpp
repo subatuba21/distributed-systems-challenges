@@ -17,7 +17,7 @@ namespace maelstrom
         }
     }
 
-    std::vector<Message> Node::initHandlerFunc(rapidjson::Document &document)
+    std::vector<std::unique_ptr<Message>> Node::initHandlerFunc(rapidjson::Document &document)
     {
 
         Message message;
@@ -29,7 +29,10 @@ namespace maelstrom
         message.body.messageId.reset();
 
         this->currentState = STATE::TAKING_MESSAGES;
-        return {message};
+        std::vector<std::unique_ptr<maelstrom::Message>> responses;
+        responses.emplace_back(std::make_unique<maelstrom::Message>(message));
+        return responses;
+
     }
 
 }

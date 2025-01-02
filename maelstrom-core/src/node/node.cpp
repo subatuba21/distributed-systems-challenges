@@ -69,7 +69,7 @@ namespace maelstrom
 
                 for (const auto &response : responses)
                 {
-                    rapidjson::Document responseDoc = response.toJSON();
+                    rapidjson::Document responseDoc = response->toJSON();
                     respond(responseDoc);
                 }
             }

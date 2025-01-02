@@ -45,7 +45,8 @@ int main()
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "echo_ok";
         message.body.messageId.reset();
-        std::vector<Message> responses = {message};
+        std::vector<std::unique_ptr<maelstrom::Message>> responses;
+        responses.emplace_back(std::make_unique<maelstrom::Message>(message));
         return responses;
     };
 

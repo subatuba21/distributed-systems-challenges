@@ -28,7 +28,7 @@ namespace maelstrom
         std::optional<std::string> echo;
         std::optional<std::string> id;
 
-        virtual void addMessageBody(rapidjson::Document &document) const
+        void addMessageBody(rapidjson::Document &document) const
         {
             document.AddMember("body", rapidjson::Value(rapidjson::kObjectType), document.GetAllocator());
             rapidjson::Value &body = document["body"];
@@ -66,7 +66,7 @@ namespace maelstrom
             }
         };
 
-        virtual void parseMessageBody(rapidjson::Document &document)
+        void parseMessageBody(rapidjson::Document &document)
         {
             parseMessageTypeAndId(*this, document);
         }
@@ -159,7 +159,7 @@ namespace maelstrom
         }
     }
 
-    using Handler = std::function<std::vector<Message>(rapidjson::Document &document)>;
+    using Handler = std::function<std::vector<std::unique_ptr<Message>>(rapidjson::Document &document)>;
 
     class Node
     {
@@ -174,7 +174,7 @@ namespace maelstrom
         const std::string &get_id() const;
         void set_id(const std::string id);
 
-        std::vector<Message> initHandlerFunc(rapidjson::Document &document);
+        std::vector<std::unique_ptr<Message>> initHandlerFunc(rapidjson::Document &document);
 
         void respond(rapidjson::Document &document) const;
 
