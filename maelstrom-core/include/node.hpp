@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include <iostream>
 
 namespace maelstrom
 {
@@ -13,6 +14,12 @@ namespace maelstrom
         ECHO
     };
 
+    struct Message;
+    struct MessageBody;
+
+    static void parseMessageTypeAndId(MessageBody &message, rapidjson::Document &document);
+    static void parseSrcAndDest(Message &message, rapidjson::Document &document);
+
     struct MessageBody
     {
         std::string type;
@@ -21,7 +28,7 @@ namespace maelstrom
         std::optional<std::string> echo;
         std::optional<std::string> id;
 
-        virtual void addMessageBody(rapidjson::Document& document) const
+        virtual void addMessageBody(rapidjson::Document &document) const
         {
             document.AddMember("body", rapidjson::Value(rapidjson::kObjectType), document.GetAllocator());
             rapidjson::Value &body = document["body"];
@@ -58,6 +65,11 @@ namespace maelstrom
                 body.AddMember("id", id, document.GetAllocator());
             }
         };
+
+        virtual void parseMessageBody(rapidjson::Document &document)
+        {
+            parseMessageTypeAndId(*this, document);
+        }
     };
 
     struct Message
@@ -70,7 +82,7 @@ namespace maelstrom
         {
             rapidjson::Document document;
             document.SetObject();
-            
+
             rapidjson::Value src;
             src.SetString(this->src.c_str(), document.GetAllocator());
             document.AddMember("src", src, document.GetAllocator());
@@ -83,7 +95,69 @@ namespace maelstrom
 
             return document;
         };
+
+        virtual void parseJSON(rapidjson::Document &document)
+        {
+            parseSrcAndDest(*this, document);
+            body.parseMessageBody(document);
+        }
     };
+
+    static const std::string MESSAGE_PARSE_ERROR = "ERROR";
+    static void parseMessageTypeAndId(MessageBody &message, rapidjson::Document &document)
+    {
+
+        if (document.HasMember("body") && document["body"].IsObject())
+        {
+            const auto &body = document["body"].GetObject();
+
+            if (body.HasMember("type") && body["type"].IsString())
+            {
+                message.type = body["type"].GetString();
+            }
+            else
+            {
+                throw std::runtime_error(maelstrom::MESSAGE_PARSE_ERROR);
+            }
+
+            if (body.HasMember("msg_id") && body["msg_id"].IsInt())
+            {
+                message.messageId = body["msg_id"].GetInt();
+            }
+
+            if (body.HasMember("in_reply_to") && body["in_reply_to"].IsInt())
+            {
+                message.inReplyTo = body["in_reply_to"].GetInt();
+            }
+        }
+        else
+        {
+            throw std::runtime_error(maelstrom::MESSAGE_PARSE_ERROR);
+        }
+    }
+
+    static void parseSrcAndDest(Message &message, rapidjson::Document &document)
+    {
+
+        if (document.HasMember("src") && document["src"].IsString())
+        {
+            message.src = document["src"].GetString();
+            std::cerr << message.src << "\n";
+        }
+        else
+        {
+            throw std::runtime_error(maelstrom::MESSAGE_PARSE_ERROR);
+        }
+
+        if (document.HasMember("dest") && document["dest"].IsString())
+        {
+            message.dest = document["dest"].GetString();
+        }
+        else
+        {
+            throw std::runtime_error(maelstrom::MESSAGE_PARSE_ERROR);
+        }
+    }
 
     using Handler = std::function<std::vector<Message>(rapidjson::Document &document)>;
 
@@ -102,9 +176,6 @@ namespace maelstrom
 
         std::vector<Message> initHandlerFunc(rapidjson::Document &document);
 
-        // utilities
-        // rapidjson::Document createDocument(const Message &message) const;
-        
         void respond(rapidjson::Document &document) const;
 
         std::string id;

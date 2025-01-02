@@ -6,13 +6,15 @@
 #include <random>
 #include <string>
 
+
+
+
 int main()
 {
-
     using namespace maelstrom;
     Node node{};
 
-    Handler handler = [node](rapidjson::Document &document)
+    Handler broadcasthandler = [node](rapidjson::Document &document)
     {
         Message message;
         parsers::parseMessageTypeAndId(message, document);

@@ -73,24 +73,6 @@ namespace maelstrom
                     respond(responseDoc);
                 }
             }
-
-            // if (message.body.type == "init")
-            // {
-            // std::swap(message.src, message.dest);
-            // message.body.inReplyTo = message.body.messageId;
-            // message.body.type = "init_ok";
-            // message.body.messageId.reset();
-            // rapidjson::Document doc = createDocument(message);
-            // respond(doc);
-            // } else if (message.body.type == "echo") {
-            //     parseEcho(message, document);
-            //     std::swap(message.src, message.dest);
-            //     message.body.inReplyTo = message.body.messageId;
-            //     message.body.type = "echo_ok";
-            //     message.body.messageId.reset();
-            //     rapidjson::Document doc = createDocument(message);
-            //     respond(doc);
-            // }
         }
     }
 }

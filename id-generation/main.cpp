@@ -39,13 +39,11 @@ int main()
     Handler idhandler = [node](rapidjson::Document &document)
     {
         Message message;
-        parsers::parseMessageTypeAndId(message, document);
-        parsers::parseSrcAndDest(message, document);
+        message.parseJSON(document);
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "generate_ok";
         message.body.messageId.reset();
-
         message.body.id = generateRandomID();
         std::vector<Message> responses = {message};
         return responses;
