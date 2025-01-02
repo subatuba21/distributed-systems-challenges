@@ -18,57 +18,6 @@ namespace maelstrom
         this->id = id;
     }
 
-    rapidjson::Document Node::createDocument(const Message &message) const
-    {
-        rapidjson::Document document;
-        document.SetObject();
-
-        rapidjson::Value src;
-        src.SetString(message.src.c_str(), document.GetAllocator());
-        document.AddMember("src", src, document.GetAllocator());
-
-        rapidjson::Value dest;
-        dest.SetString(message.dest.c_str(), document.GetAllocator());
-        document.AddMember("dest", dest, document.GetAllocator());
-
-        document.AddMember("body", rapidjson::Value(rapidjson::kObjectType), document.GetAllocator());
-        rapidjson::Value &body = document["body"];
-
-        rapidjson::Value type;
-        type.SetString(message.body.type.c_str(), document.GetAllocator());
-        body.AddMember("type", type, document.GetAllocator());
-
-        if (message.body.messageId.has_value())
-        {
-            rapidjson::Value msg_id;
-            msg_id.SetInt(message.body.messageId.value());
-            body.AddMember("msg_id", msg_id, document.GetAllocator());
-        }
-
-        if (message.body.inReplyTo.has_value())
-        {
-            rapidjson::Value in_reply_to;
-            in_reply_to.SetInt(message.body.inReplyTo.value());
-            body.AddMember("in_reply_to", in_reply_to, document.GetAllocator());
-        }
-
-        if (message.body.echo.has_value())
-        {
-            rapidjson::Value echo;
-            echo.SetString(message.body.echo.value().c_str(), document.GetAllocator());
-            body.AddMember("echo", echo, document.GetAllocator());
-        }
-
-        if (message.body.id.has_value())
-        {
-            rapidjson::Value id;
-            id.SetString(message.body.id.value().c_str(), document.GetAllocator());
-            body.AddMember("id", id, document.GetAllocator());
-        }
-
-        return document;
-    }
-
     void Node::respond(rapidjson::Document &document) const
     {
         // Serialize and output the response
@@ -120,7 +69,7 @@ namespace maelstrom
 
                 for (const auto &response : responses)
                 {
-                    rapidjson::Document responseDoc = createDocument(response);
+                    rapidjson::Document responseDoc = response.toJSON();
                     respond(responseDoc);
                 }
             }
