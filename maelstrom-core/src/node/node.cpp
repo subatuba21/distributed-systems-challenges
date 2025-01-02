@@ -65,8 +65,6 @@ namespace maelstrom
 
                 const auto &responses = this->map[docType](document);
 
-                std::cerr << "found " << std::to_string(responses.size()) << std::endl;
-
                 for (const auto &response : responses)
                 {
                     rapidjson::Document responseDoc = response->toJSON();

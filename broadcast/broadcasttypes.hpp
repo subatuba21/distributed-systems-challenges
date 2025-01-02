@@ -7,7 +7,7 @@ namespace maelstrom
     struct broadcastMessage : Message
     {
 
-        std::string message;
+        int message;
 
         void parseJSON(rapidjson::Document &document) override
         {
@@ -16,9 +16,9 @@ namespace maelstrom
             if (document.HasMember("body") && document["body"].IsObject())
             {
                 const auto &body = document["body"].GetObject();
-                if (body.HasMember("message") && body["message"].IsString())
+                if (body.HasMember("message") && body["message"].IsInt())
                 {
-                    message = body["message"].GetString();
+                    message = body["message"].GetInt();
                 }
             }
         }
@@ -33,12 +33,8 @@ namespace maelstrom
         {
             rapidjson::Document document = Message::toJSON();
 
-            std::cerr << "here1001" << "\n";
-
             if (document.HasMember("body") && document["body"].IsObject())
             {
-
-                std::cerr << "here1111" << "\n";
 
                 rapidjson::Value messagesVal;
                 messagesVal.SetArray();

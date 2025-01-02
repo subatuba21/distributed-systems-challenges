@@ -12,10 +12,15 @@ int main()
     using namespace maelstrom;
     Node node{};
 
-    Handler broadcasthandler = [node](rapidjson::Document &document)
+    std::vector<int> saved;
+
+    Handler broadcasthandler = [&saved, node](rapidjson::Document &document)
     {
         broadcastMessage message;
         message.parseJSON(document);
+
+        saved.push_back(message.message);
+
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "broadcast_ok";
@@ -25,15 +30,15 @@ int main()
         return responses;
     };
 
-    Handler readHandler = [node](rapidjson::Document &document)
+    Handler readHandler = [&saved, node](rapidjson::Document &document)
     {
         auto message = std::make_unique<readMessage>();
         message->parseJSON(document);
-        std::cerr << "here" << "\n";
         std::swap(message->src, message->dest);
         message->body.inReplyTo = message->body.messageId;
         message->body.type = "read_ok";
         message->body.messageId.reset();
+        message->messages = saved;
         std::vector<std::unique_ptr<maelstrom::Message>> responses;
         responses.emplace_back(std::move(message));
         return responses;
