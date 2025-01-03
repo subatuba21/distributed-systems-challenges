@@ -134,7 +134,6 @@ namespace maelstrom
             if (body.HasMember("node_id") && body["node_id"].IsString())
             {
                 message.nodeId = body["node_id"].GetString();
-                std::cerr << "HERE" <<  body["node_id"].GetString() << "\n";
             }
 
         }

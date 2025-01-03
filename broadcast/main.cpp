@@ -14,23 +14,49 @@ int main()
     Node node{};
 
     std::set<int> saved;
-    std::vector<int> neighbors;
+    std::vector<std::string> neighbors;
+    int messageIdCounter = 0;
 
-    Handler broadcasthandler = [&saved, &node](rapidjson::Document &document)
+    Handler broadcasthandler = [&saved, &node, &neighbors, &messageIdCounter](rapidjson::Document &document)
     {
         broadcastMessage message;
         message.parseJSON(document);
 
-        saved.insert(message.message);
+        std::string src = message.src;
+        std::string dest = message.dest;
+        int messageInt = message.message;
 
-        std::cerr << "NODEID " << node.get_id() << "\n";
+        bool alreadySeen = saved.find(messageInt) != saved.end();
+        saved.insert(messageInt);
 
+        // response to client
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "broadcast_ok";
         message.body.messageId.reset();
         std::vector<std::unique_ptr<maelstrom::Message>> responses;
         responses.emplace_back(std::make_unique<maelstrom::Message>(message));
+
+        if (alreadySeen) {
+            // no need to propagate
+            return responses;
+        }
+
+
+        for (auto& neighbor : neighbors) {
+            auto newMessage = std::make_unique<broadcastMessage>();
+            newMessage->src = node.get_id();
+            newMessage->dest = neighbor;
+            newMessage->body.messageId = messageIdCounter;
+            newMessage->body.type = "broadcast";
+            messageIdCounter++;
+            newMessage->message = messageInt;
+
+            responses.emplace_back(std::move(newMessage));
+        }
+
+
+        // messages to neighbor nodes
         return responses;
     };
 
@@ -48,14 +74,20 @@ int main()
         return responses;
     };
 
-    Handler topologyHandler = [node](rapidjson::Document &document)
+    Handler topologyHandler = [&neighbors, &node](rapidjson::Document &document)
     {
         topologyMessage message;
         message.parseJSON(document);
+
+        for (auto& neighbor : message.topology[node.get_id()]) {
+            neighbors.push_back(neighbor);
+        }
+
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "topology_ok";
         message.body.messageId.reset();
+        
         std::vector<std::unique_ptr<maelstrom::Message>> responses;
         responses.emplace_back(std::make_unique<maelstrom::Message>(message));
         return responses;

@@ -22,6 +22,20 @@ namespace maelstrom
                 }
             }
         }
+
+        rapidjson::Document toJSON() const override
+        {
+            rapidjson::Document document = Message::toJSON();
+
+            if (document.HasMember("body") && document["body"].IsObject())
+            {
+                rapidjson::Value messageVal;
+                messageVal.SetInt(this->message);
+                document["body"].AddMember("message", messageVal, document.GetAllocator());
+            }
+
+            return document;
+        }
     };
 
     struct readMessage : Message
