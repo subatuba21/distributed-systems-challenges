@@ -10,7 +10,7 @@ namespace maelstrom
 {
     const std::string &Node::get_id() const
     {
-        return id;
+        return this->id;
     }
 
     void Node::set_id(const std::string id)
@@ -39,7 +39,6 @@ namespace maelstrom
         while (true)
         {
             std::getline(std::cin, inputLine);
-            std::cerr << "input " << inputLine + "\n";
             if (inputLine.empty())
             {
                 break;

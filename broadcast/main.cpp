@@ -1,5 +1,6 @@
 #include "optional"
 #include "vector"
+#include "set"
 #include "parsers.hpp"
 #include "broadcasttypes.hpp"
 
@@ -12,14 +13,17 @@ int main()
     using namespace maelstrom;
     Node node{};
 
-    std::vector<int> saved;
+    std::set<int> saved;
+    std::vector<int> neighbors;
 
-    Handler broadcasthandler = [&saved, node](rapidjson::Document &document)
+    Handler broadcasthandler = [&saved, &node](rapidjson::Document &document)
     {
         broadcastMessage message;
         message.parseJSON(document);
 
-        saved.push_back(message.message);
+        saved.insert(message.message);
+
+        std::cerr << "NODEID " << node.get_id() << "\n";
 
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
@@ -38,7 +42,7 @@ int main()
         message->body.inReplyTo = message->body.messageId;
         message->body.type = "read_ok";
         message->body.messageId.reset();
-        message->messages = saved;
+        message->messages = std::vector<int>(saved.begin(), saved.end());
         std::vector<std::unique_ptr<maelstrom::Message>> responses;
         responses.emplace_back(std::move(message));
         return responses;

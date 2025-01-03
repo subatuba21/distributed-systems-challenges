@@ -27,6 +27,7 @@ namespace maelstrom
         std::optional<int> inReplyTo;
         std::optional<std::string> echo;
         std::optional<std::string> id;
+        std::optional<std::string> nodeId;
 
         void addMessageBody(rapidjson::Document &document) const
         {
@@ -129,6 +130,13 @@ namespace maelstrom
             {
                 message.inReplyTo = body["in_reply_to"].GetInt();
             }
+
+            if (body.HasMember("node_id") && body["node_id"].IsString())
+            {
+                message.nodeId = body["node_id"].GetString();
+                std::cerr << "HERE" <<  body["node_id"].GetString() << "\n";
+            }
+
         }
         else
         {
@@ -170,8 +178,9 @@ namespace maelstrom
 
         void initialize_handler(const Handler &handler, const std::initializer_list<std::string> message_types);
 
-    private:
         const std::string &get_id() const;
+
+    private:
         void set_id(const std::string id);
 
         std::vector<std::unique_ptr<Message>> initHandlerFunc(rapidjson::Document &document);

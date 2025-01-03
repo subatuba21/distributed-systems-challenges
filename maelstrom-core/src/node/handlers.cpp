@@ -23,6 +23,8 @@ namespace maelstrom
         Message message;
         message.parseJSON(document);
 
+        this->set_id(message.body.nodeId.value());
+
         std::swap(message.src, message.dest);
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "init_ok";
