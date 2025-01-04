@@ -6,6 +6,7 @@
 
 #include <random>
 #include <string>
+#include <list>
 
 
 int main()
@@ -16,8 +17,12 @@ int main()
     std::set<int> saved;
     std::vector<std::string> neighbors;
     int messageIdCounter = 0;
+    int messageCounter = 0;
 
-    Handler broadcasthandler = [&saved, &node, &neighbors, &messageIdCounter](rapidjson::Document &document)
+    std::list<std::shared_ptr<broadcastMessage>> retryList;
+    std::unordered_map<int, std::list<std::shared_ptr<broadcastMessage>>::iterator> retryMap;
+
+    Handler broadcasthandler = [&saved, &node, &neighbors, &messageIdCounter, &retryList, &retryMap](rapidjson::Document &document)
     {
         broadcastMessage message;
         message.parseJSON(document);
@@ -49,10 +54,16 @@ int main()
             newMessage->dest = neighbor;
             newMessage->body.messageId = messageIdCounter;
             newMessage->body.type = "broadcast";
-            messageIdCounter++;
+            
             newMessage->message = messageInt;
 
-            responses.emplace_back(std::move(newMessage));
+            // add to retry
+            retryList.push_back(newMessage);
+            retryMap[messageIdCounter] = std::prev(retryList.end());
+
+            responses.push_back(newMessage);
+
+            messageIdCounter++;
         }
 
 
@@ -60,7 +71,7 @@ int main()
         return responses;
     };
 
-    Handler readHandler = [&saved, node](rapidjson::Document &document)
+    Handler readHandler = [&saved, &node](rapidjson::Document &document)
     {
         auto message = std::make_shared<readMessage>();
         message->parseJSON(document);
@@ -93,9 +104,32 @@ int main()
         return responses;
     };
 
+    Handler broadcastOkHandler = [&messageCounter, &retryMap, &retryList](rapidjson::Document &document) {
+        Message broadCastOkayMessage;
+        broadCastOkayMessage.parseJSON(document);
+
+        if (broadCastOkayMessage.body.inReplyTo.has_value() && retryMap.count(broadCastOkayMessage.body.inReplyTo.value()) != 0) {
+            retryList.erase(retryMap[broadCastOkayMessage.body.inReplyTo.value()]);
+            retryMap.erase(broadCastOkayMessage.body.inReplyTo.value());
+        }
+
+        std::cerr << "broadcast_OK YAY";
+
+        
+        return std::vector<std::shared_ptr<maelstrom::Message>>{};
+    };
+
+
+    // Handler retryHandler = [&messageCounter](rapidjson::Document &document) {
+    //     messageCounter += 1;
+
+
+    // };
+
     node.initialize_handler(broadcasthandler, {"broadcast"});
     node.initialize_handler(topologyHandler, {"topology"});
     node.initialize_handler(readHandler, {"read"});
+    node.initialize_handler(broadcastOkHandler, {"broadcast_ok"});
 
     node.run();
     return 0;
