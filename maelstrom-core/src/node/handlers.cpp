@@ -12,12 +12,12 @@ namespace maelstrom
             // has to be a new message type
             if (this->map.find(str) == this->map.end())
             {
-                this->map[str] = handler;
+                this->map[str].push_back(handler);
             }
         }
     }
 
-    std::vector<std::unique_ptr<Message>> Node::initHandlerFunc(rapidjson::Document &document)
+    std::vector<std::shared_ptr<Message>> Node::initHandlerFunc(rapidjson::Document &document)
     {
 
         Message message;
@@ -31,8 +31,8 @@ namespace maelstrom
         message.body.messageId.reset();
 
         this->currentState = STATE::TAKING_MESSAGES;
-        std::vector<std::unique_ptr<maelstrom::Message>> responses;
-        responses.emplace_back(std::make_unique<maelstrom::Message>(message));
+        std::vector<std::shared_ptr<maelstrom::Message>> responses;
+        responses.emplace_back(std::make_shared<maelstrom::Message>(message));
         return responses;
 
     }

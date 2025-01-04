@@ -62,7 +62,16 @@ namespace maelstrom
                     continue;
                 }
 
-                const auto &responses = this->map[docType](document);
+                std::vector<std::shared_ptr<Message>> responses;
+
+                for (auto function : this->map[docType])
+                {
+                    auto funcResponses = function(document);
+                    for (const auto &response : funcResponses)
+                    {
+                        responses.push_back(response);
+                    }
+                }
 
                 for (const auto &response : responses)
                 {

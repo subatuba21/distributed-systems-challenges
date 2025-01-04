@@ -166,7 +166,7 @@ namespace maelstrom
         }
     }
 
-    using Handler = std::function<std::vector<std::unique_ptr<Message>>(rapidjson::Document &document)>;
+    using Handler = std::function<std::vector<std::shared_ptr<Message>>(rapidjson::Document &document)>;
 
     class Node
     {
@@ -182,7 +182,7 @@ namespace maelstrom
     private:
         void set_id(const std::string id);
 
-        std::vector<std::unique_ptr<Message>> initHandlerFunc(rapidjson::Document &document);
+        std::vector<std::shared_ptr<Message>> initHandlerFunc(rapidjson::Document &document);
 
         void respond(rapidjson::Document &document) const;
 
@@ -195,6 +195,6 @@ namespace maelstrom
         };
 
         STATE currentState = STATE::WAITING_FOR_INIT;
-        std::unordered_map<std::string, Handler> map;
+        std::unordered_map<std::string, std::vector<Handler>> map;
     };
 }

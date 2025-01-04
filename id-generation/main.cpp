@@ -45,8 +45,8 @@ int main()
         message.body.type = "generate_ok";
         message.body.messageId.reset();
         message.body.id = generateRandomID();
-        std::vector<std::unique_ptr<maelstrom::Message>> responses;
-        responses.emplace_back(std::make_unique<maelstrom::Message>(message));
+        std::vector<std::shared_ptr<maelstrom::Message>> responses;
+        responses.emplace_back(std::make_shared<maelstrom::Message>(message));
         return responses;
     };
 

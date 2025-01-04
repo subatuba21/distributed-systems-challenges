@@ -34,8 +34,8 @@ int main()
         message.body.inReplyTo = message.body.messageId;
         message.body.type = "broadcast_ok";
         message.body.messageId.reset();
-        std::vector<std::unique_ptr<maelstrom::Message>> responses;
-        responses.emplace_back(std::make_unique<maelstrom::Message>(message));
+        std::vector<std::shared_ptr<maelstrom::Message>> responses;
+        responses.emplace_back(std::make_shared<maelstrom::Message>(message));
 
         if (alreadySeen) {
             // no need to propagate
@@ -44,7 +44,7 @@ int main()
 
 
         for (auto& neighbor : neighbors) {
-            auto newMessage = std::make_unique<broadcastMessage>();
+            auto newMessage = std::make_shared<broadcastMessage>();
             newMessage->src = node.get_id();
             newMessage->dest = neighbor;
             newMessage->body.messageId = messageIdCounter;
@@ -62,14 +62,14 @@ int main()
 
     Handler readHandler = [&saved, node](rapidjson::Document &document)
     {
-        auto message = std::make_unique<readMessage>();
+        auto message = std::make_shared<readMessage>();
         message->parseJSON(document);
         std::swap(message->src, message->dest);
         message->body.inReplyTo = message->body.messageId;
         message->body.type = "read_ok";
         message->body.messageId.reset();
         message->messages = std::vector<int>(saved.begin(), saved.end());
-        std::vector<std::unique_ptr<maelstrom::Message>> responses;
+        std::vector<std::shared_ptr<maelstrom::Message>> responses;
         responses.emplace_back(std::move(message));
         return responses;
     };
@@ -88,8 +88,8 @@ int main()
         message.body.type = "topology_ok";
         message.body.messageId.reset();
         
-        std::vector<std::unique_ptr<maelstrom::Message>> responses;
-        responses.emplace_back(std::make_unique<maelstrom::Message>(message));
+        std::vector<std::shared_ptr<maelstrom::Message>> responses;
+        responses.emplace_back(std::make_shared<maelstrom::Message>(message));
         return responses;
     };
 
