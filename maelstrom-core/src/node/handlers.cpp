@@ -8,12 +8,7 @@ namespace maelstrom
     {
         for (const std::string &str : message_types)
         {
-
-            // has to be a new message type
-            if (this->map.find(str) == this->map.end())
-            {
-                this->map[str].push_back(handler);
-            }
+            this->map[str].push_back(handler);
         }
     }
 

@@ -120,16 +120,18 @@ int main()
     };
 
 
-    // Handler retryHandler = [&messageCounter](rapidjson::Document &document) {
-    //     messageCounter += 1;
-
-
-    // };
+    Handler retryHandler = [&messageCounter, &retryList](rapidjson::Document &document) {
+        messageCounter += 1;
+        std::cerr << "retrying " << std::to_string(retryList.size()) << " items";
+        return std::vector<std::shared_ptr<maelstrom::Message>>(retryList.begin(), retryList.end());
+    };
 
     node.initialize_handler(broadcasthandler, {"broadcast"});
     node.initialize_handler(topologyHandler, {"topology"});
     node.initialize_handler(readHandler, {"read"});
     node.initialize_handler(broadcastOkHandler, {"broadcast_ok"});
+    node.initialize_handler(retryHandler, {"broadcast", "topology", "read"});
+
 
     node.run();
     return 0;
