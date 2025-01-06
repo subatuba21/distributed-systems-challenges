@@ -24,6 +24,7 @@ add_subdirectory(maelstrom-core)
 add_subdirectory(echo)
 add_subdirectory(id-generation)
 add_subdirectory(broadcast)
+add_subdirectory(kvstore)
 
 target_include_directories(shared PUBLIC
     ${rapidjson_SOURCE_DIR}/include
@@ -38,5 +39,9 @@ target_include_directories(idgeneration PUBLIC
 )
 
 target_include_directories(broadcast PUBLIC
+    ${rapidjson_SOURCE_DIR}/include
+)
+
+target_include_directories(kvstore PUBLIC
     ${rapidjson_SOURCE_DIR}/include
 )

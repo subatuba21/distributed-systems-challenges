@@ -28,6 +28,9 @@ namespace maelstrom
 
         void parseJSON(rapidjson::Document &document) override
         {
+
+            Message::parseJSON(document);
+
             if (document.HasMember("body") && document["body"].IsObject())
             {
                 const auto &body = document["body"].GetObject();
@@ -64,8 +67,8 @@ namespace maelstrom
             {
                 const auto &body = document["body"].GetObject();
 
-                rapidjson::Value vxn;
-                vxn.SetArray();
+                rapidjson::Value txn;
+                txn.SetArray();
 
                 for (const auto& operation : operations) {
                     rapidjson::Value jsonOperation;
@@ -89,8 +92,9 @@ namespace maelstrom
                     valueValue.SetInt(operation.value);
 
                     jsonOperation.PushBack(valueValue, document.GetAllocator());
+                    txn.PushBack(jsonOperation, document.GetAllocator());
                 }
-                body.AddMember("vxn", vxn, document.GetAllocator());
+                body.AddMember("txn", txn, document.GetAllocator());
             }
 
             return document;
